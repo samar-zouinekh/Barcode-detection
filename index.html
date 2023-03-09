@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Scanner</title>
+</head>
+<body>
+    <h1>Barcode Scanner</h1>
+    <form id="barcode-form" method="post">
+        <input type="file" id="barcode-image" accept="image/*" />
+        <button type="submit">Scan Barcode</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('barcode-form');
+        const imageInput = document.getElementById('barcode-image');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const imageFile = imageInput.files[0];
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const imageBase64 = reader.result.split(',')[1];
+
+                fetch('/detect_barcode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: imageBase64
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            };
+
+            reader.readAsDataURL(imageFile);
+        });
+    </script>
+</body>
+</html>
